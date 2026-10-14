@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>France rights tree</title>
+<style>
+:root{--text-primary:#1f1e1d;--text-secondary:#5f5e5a;--text-danger:#a32d2d;--bg-danger:#fcebeb;--border-strong:#c9c7bf;--bg:#faf9f5;--radius:8px}
+@media (prefers-color-scheme: dark){:root{--text-primary:#f1efe8;--text-secondary:#b4b2a9;--text-danger:#f09595;--bg-danger:#501313;--border-strong:#5f5e5a;--bg:#1f1e1d}}
+body{margin:0;background:var(--bg);color:var(--text-primary);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:720px;margin:0 auto;padding:24px 16px 48px}
+h1{font-size:22px;font-weight:500;margin:0 0 8px}
+h2{font-size:17px;font-weight:500;margin:28px 0 8px}
+p{font-size:15px;line-height:1.6;color:var(--text-secondary);margin:0 0 10px}
+.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:4px 10px;border:1px solid var(--border-strong);border-radius:var(--radius);background:transparent;color:var(--text-secondary);cursor:pointer;margin:0 6px 6px 0;font-family:inherit}
+.chip.on{border-color:var(--text-primary);color:var(--text-primary)}
+.row{display:flex;cursor:pointer;min-height:48px}
+.row.dim{opacity:.22}
+.g{position:relative;width:100px;flex:none}
+.tx{flex:1;min-width:0;padding:6px 0 8px}
+.t1{font-size:14px;font-weight:500;line-height:1.35}
+.t2{font-size:12px;color:var(--text-secondary)}
+.det{font-size:13px;color:var(--text-secondary);line-height:1.5;margin-top:4px;display:none}
+.row.open .det{display:block}
+.bk{font-size:11px;color:var(--text-danger);background:var(--bg-danger);padding:1px 6px;border-radius:var(--radius);margin-left:4px}
+.small{font-size:12px;color:var(--text-secondary);margin:4px 0}
+</style>
+</head>
+<body>
+<main>
+<h1>The evolution of rights in France, 1789–2024</h1>
+<p>A family tree of French laws and rights. Each branch is a family of rights, each dot is a law, and the dot's colour shows which political camp passed it. Hollow dashed dots are "extinctions", where rights went backwards.</p>
+<p class="small">Tap a colour to highlight a camp, tap a row for details.</p>
+<div id="legend"></div>
+<p class="small">Branches left to right: democracy · freedoms and equality · work and social · women and family · body and justice</p>
+<div id="tree" style="margin-top:12px"></div>
+
+<h2>What the tree shows</h2>
+<p>The left drives most work and social rights, especially in 1936, 1981–82 and 2000. The right and centre are behind several big personal-freedom laws, such as contraception in 1967 and abortion in 1975. Women's rights are spread across almost every camp. All the steps back came from non-democratic regimes: Napoleon, the restored monarchy and Vichy.</p>
+<h2>A note on the colours</h2>
+<p>Labelling camps is a simplification. Ferry's "moderate republicans" counted as the left in the 1880s but would look centrist today. Some laws also passed with votes from across parliament: the Veil abortion law relied mostly on left-wing votes, and the 2024 constitutional change got a huge cross-party majority.</p>
+</main>
+<script>
+const S={rev:["Revolution","#7F77DD"],mon:["Monarchy or empire","#888780"],left:["Left","#E24B4A"],cen:["Centre / centre-right","#EF9F27"],right:["Gaullist / right","#378ADD"],uni:["National unity","#639922"],vic:["Vichy regime","#993C1D"]};
+const L=["Democracy","Freedoms and equality","Work and social","Women and family","Body and justice"];
+const E=[
+[1789,0,"rev","Declaration of the Rights of Man","The root: all men are born free and equal in rights. Adopted by the National Constituent Assembly."],
+[1791,1,"rev","Jews become full citizens","France is the first European country to grant Jews full equal citizenship."],
+[1791,4,"rev","Homosexuality no longer a crime","The new penal code simply drops the old offence of sodomy."],
+[1792,0,"rev","First vote for all men","The National Convention is elected by (near) universal male suffrage."],
+[1792,3,"rev","Divorce becomes legal","One of the most liberal divorce laws in Europe at the time."],
+[1794,1,"rev","Slavery abolished","The Convention abolishes slavery in all French colonies."],
+[1802,1,"mon","Napoleon restores slavery","Slavery is reinstated in the colonies under the Consulate.",1],
+[1804,3,"mon","Civil Code: wife must obey","Napoleon's Civil Code makes married women legally subordinate to their husbands.",1],
+[1814,0,"mon","Only rich men can vote","The restored monarchy limits voting to wealthy taxpayers.",1],
+[1816,3,"mon","Divorce banned again","Ultra-royalist majority abolishes divorce for nearly 70 years.",1],
+[1841,2,"mon","Child labour limited","Under the July Monarchy, factory work is banned for children under 8."],
+[1848,0,"left","Universal male suffrage for good","The Second Republic's provisional government restores the vote for all men."],
+[1848,1,"left","Slavery abolished for good","Decree pushed by Victor Schoelcher under the Second Republic."],
+[1864,2,"mon","Right to strike","Napoleon III's empire legalises strikes (Ollivier law)."],
+[1881,1,"cen","Freedom of the press","Moderate republicans pass the great press-freedom law, still in force."],
+[1882,2,"cen","Free, secular, compulsory school","Jules Ferry's laws make primary school free and mandatory for girls and boys."],
+[1884,2,"cen","Trade unions legal","Waldeck-Rousseau law lets workers form unions."],
+[1884,3,"cen","Divorce restored","Naquet law, pushed by a radical deputy and passed by the republican majority."],
+[1901,1,"cen","Freedom of association","Anyone can create an association (Waldeck-Rousseau government)."],
+[1905,1,"left","Church and state separated","Laïcité law passed by the left-wing Bloc des gauches."],
+[1906,2,"left","Weekly day off","Radical government guarantees one rest day a week."],
+[1936,2,"left","Paid holidays and 40-hour week","Popular Front: two weeks paid leave and collective agreements."],
+[1938,3,"left","Married women gain legal capacity","Wives no longer legally 'incapable' (radical-led government)."],
+[1940,0,"vic","Republic abolished","Pétain's Vichy regime ends democracy.",1],
+[1940,1,"vic","Anti-Jewish statutes","Vichy excludes Jews from jobs and rights.",1],
+[1942,4,"vic","Anti-gay age-of-consent law","Vichy sets a higher age of consent for same-sex relations.",1],
+[1944,0,"uni","Women win the vote","De Gaulle's provisional government grants women the right to vote."],
+[1945,2,"uni","Social security","Health, pension and family cover for all, from the Resistance programme."],
+[1946,3,"uni","Equal rights in the Constitution","New preamble guarantees women equal rights in all areas."],
+[1950,2,"cen","Minimum wage (SMIG)","Created under a centrist-led Fourth Republic government."],
+[1965,3,"right","Wives can work and bank alone","Married women no longer need a husband's permission (Gaullist government)."],
+[1967,4,"right","Contraception legal","Neuwirth law, proposed by a Gaullist deputy."],
+[1970,3,"right","Parental authority shared","Joint parental authority replaces 'paternal power' (Pompidou era)."],
+[1972,1,"right","Anti-racism law","Pleven law makes racist speech and discrimination a crime; voted unanimously."],
+[1974,0,"cen","Voting at 18","Giscard d'Estaing lowers the voting age from 21."],
+[1975,3,"cen","Divorce by mutual consent","Reform under Giscard d'Estaing."],
+[1975,4,"cen","Abortion legal","Veil law, passed under Giscard with mostly left-wing votes in parliament."],
+[1981,4,"left","Death penalty abolished","Badinter law under Mitterrand."],
+[1982,2,"left","39-hour week, 5th week of holiday","First Mitterrand government."],
+[1982,4,"left","Equal age of consent","Vichy-era anti-gay discrimination removed."],
+[1983,3,"left","Workplace equality law","Roudy law on equal treatment of women at work."],
+[1988,2,"left","Minimum income (RMI)","Rocard government creates a basic income for the poorest."],
+[1999,3,"left","PACS civil union","Open to same-sex couples (Jospin government)."],
+[2000,0,"left","Parity law","Parties must present equal numbers of women and men (Jospin government)."],
+[2000,2,"left","35-hour week","Aubry laws under the Jospin government."],
+[2005,4,"right","End-of-life rights","Leonetti law bans unreasonable treatment obstinacy."],
+[2007,4,"right","Death penalty banned in Constitution","Constitutional amendment under Chirac."],
+[2013,3,"left","Marriage for all","Same-sex marriage under Hollande."],
+[2021,3,"cen","IVF for all women","Opened to lesbian couples and single women under Macron."],
+[2024,4,"cen","Abortion in the Constitution","Under Macron, approved by a large cross-party majority of parliament."]
+];
+const X=l=>14+l*18,first={};E.forEach((e,i)=>{if(first[e[1]]===undefined)first[e[1]]=i});
+let hi=null;
+const lg=document.getElementById('legend');
+Object.entries(S).forEach(([k,[n,c]])=>{const b=document.createElement('button');b.className='chip';b.dataset.k=k;b.innerHTML=`<span style="width:10px;height:10px;border-radius:50%;background:${c}"></span>${n}`;b.onclick=()=>{hi=hi===k?null:k;draw()};lg.appendChild(b)});
+const tr=document.getElementById('tree');
+E.forEach((e,i)=>{const[y,l,s,t,d,bk]=e,c=S[s][1];const r=document.createElement('div');r.className='row';r.dataset.s=s;
+let g='';for(let k=0;k<5;k++){if(first[k]===undefined||first[k]>i)continue;const st=first[k]===i?20:0;g+=`<div style="position:absolute;left:${X(k)-1}px;top:${st}px;bottom:0;width:2px;background:var(--border-strong)"></div>`;if(first[k]===i&&k>0)g+=`<svg style="position:absolute;left:0;top:0" width="100" height="22"><path d="M${X(0)} 0 C${X(0)} 18 ${X(k)} 4 ${X(k)} 20" fill="none" stroke="var(--border-strong)" stroke-width="2"/></svg>`}
+g+=`<div style="position:absolute;left:${X(l)-7}px;top:13px;width:14px;height:14px;border-radius:50%;box-sizing:border-box;${bk?`background:var(--bg);border:2.5px dashed ${c}`:`background:${c}`}"></div>`;
+r.innerHTML=`<div class="g">${g}</div><div class="tx"><div class="t1">${y} · ${t}${bk?'<span class="bk">step back</span>':''}</div><div class="t2">${L[l]} · ${S[s][0]}</div><div class="det">${d}</div></div>`;
+r.onclick=()=>r.classList.toggle('open');tr.appendChild(r)});
+function draw(){document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('on',b.dataset.k===hi));document.querySelectorAll('.row').forEach(r=>r.classList.toggle('dim',hi&&r.dataset.s!==hi))}
+</script>
+</body>
+</html>
