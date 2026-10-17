@@ -2,110 +2,375 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>France rights tree</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
-:root{--text-primary:#1f1e1d;--text-secondary:#5f5e5a;--text-danger:#a32d2d;--bg-danger:#fcebeb;--border-strong:#c9c7bf;--bg:#faf9f5;--radius:8px}
-@media (prefers-color-scheme: dark){:root{--text-primary:#f1efe8;--text-secondary:#b4b2a9;--text-danger:#f09595;--bg-danger:#501313;--border-strong:#5f5e5a;--bg:#1f1e1d}}
-body{margin:0;background:var(--bg);color:var(--text-primary);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
-main{max-width:720px;margin:0 auto;padding:24px 16px 48px}
-h1{font-size:22px;font-weight:500;margin:0 0 8px}
-h2{font-size:17px;font-weight:500;margin:28px 0 8px}
-p{font-size:15px;line-height:1.6;color:var(--text-secondary);margin:0 0 10px}
-.chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:4px 10px;border:1px solid var(--border-strong);border-radius:var(--radius);background:transparent;color:var(--text-secondary);cursor:pointer;margin:0 6px 6px 0;font-family:inherit}
-.chip.on{border-color:var(--text-primary);color:var(--text-primary)}
-.row{display:flex;cursor:pointer;min-height:48px}
-.row.dim{opacity:.22}
+/* Layout: a register of legal texts. An overview map of five lanes on top, then a
+   dated ledger whose left gutter carries the branches of the tree. */
+:root{
+  --paper:#f7f8f6; --sheet:#ffffff; --ink:#18212b; --ink-2:#4c5663; --ink-3:#7a838e;
+  --rule:#d9dde1; --rail:#c3c9cf; --band:#eef0f1; --focus:#2a5bd7;
+  --c-rev:#7a5bd6; --c-mon:#7d7f83; --c-left:#d93a3a; --c-cen:#e08a12; --c-right:#2a6fd0; --c-uni:#3f8f2e; --c-vic:#8f4a2a;
+  --display:"Spectral",Georgia,"Times New Roman",serif;
+  --body:"Source Sans 3",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --paper:#12171d; --sheet:#182029; --ink:#e9edf1; --ink-2:#b0b9c3; --ink-3:#7f8a96;
+  --rule:#2b3540; --rail:#3b4652; --band:#1c242d; --focus:#7aa2ff;
+  --c-rev:#9d86ec; --c-mon:#9a9ca1; --c-left:#ef6464; --c-cen:#eda33c; --c-right:#5a95ea; --c-uni:#62ad4f; --c-vic:#c0714c;
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#12171d; --sheet:#182029; --ink:#e9edf1; --ink-2:#b0b9c3; --ink-3:#7f8a96;
+  --rule:#2b3540; --rail:#3b4652; --band:#1c242d; --focus:#7aa2ff;
+  --c-rev:#9d86ec; --c-mon:#9a9ca1; --c-left:#ef6464; --c-cen:#eda33c; --c-right:#5a95ea; --c-uni:#62ad4f; --c-vic:#c0714c;
+  color-scheme:dark}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 var(--body)}
+.wrap{max-width:980px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2{font-family:var(--display);font-weight:600;text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,5vw,42px);line-height:1.1;letter-spacing:-.01em}
+h1 em{font-weight:400;color:var(--ink-2)}
+h2{font-size:22px;line-height:1.25}
+p{margin:0;max-width:66ch;color:var(--ink-2)}
+.lede{font-size:17px;margin-top:12px}
+.eyebrow{font:500 12px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+header{display:grid;gap:8px}
+.tally{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:14px;font:14px var(--body);color:var(--ink-2)}
+.tally b{font:500 15px var(--mono);color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* overview map */
+.map{margin-top:28px;background:var(--sheet);border:1px solid var(--rule);border-radius:6px;padding:14px 0 6px}
+.map-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:0 14px 8px}
+.map-scroll{overflow-x:auto}
+.map svg{display:block;min-width:760px;width:100%;height:auto}
+.map text{font-family:var(--mono);font-size:10px;fill:var(--ink-3)}
+.map .lane-name{font-family:var(--body);font-size:11.5px;fill:var(--ink-2)}
+.map .era-name{font-size:9.5px;fill:var(--ink-3)}
+.map .mk{cursor:pointer}
+.map .mk:focus{outline:none}
+.map .mk:focus .hit,.map .mk:hover .hit{stroke:var(--ink);stroke-width:1.5}
+.map .mk.dim{opacity:.15}
+.tip{position:fixed;z-index:5;pointer-events:none;max-width:260px;background:var(--sheet);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:8px 10px;font:13px/1.4 var(--body);box-shadow:0 6px 20px rgba(0,0,0,.14)}
+.tip .d{font:12px var(--mono);color:var(--ink-3)}
+
+/* keys and filters */
+.controls{margin-top:28px;display:grid;gap:14px}
+.ctl-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.ctl-label{font:500 11px/1 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);width:84px;flex:none}
+.chip{display:inline-flex;align-items:center;gap:7px;font:14px/1 var(--body);padding:7px 11px;border:1px solid var(--rule);border-radius:999px;background:var(--sheet);color:var(--ink-2);cursor:pointer}
+.chip:hover{border-color:var(--ink-3);color:var(--ink)}
+.chip[aria-pressed="true"]{border-color:var(--ink);color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.chip:focus-visible,.row-btn:focus-visible,.search:focus-visible,.reset:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.chip svg{flex:none}
+.search{flex:1 1 220px;min-width:0;font:15px var(--body);padding:8px 12px;border:1px solid var(--rule);border-radius:6px;background:var(--sheet);color:var(--ink)}
+.search::placeholder{color:var(--ink-3)}
+.status{display:flex;justify-content:space-between;align-items:center;gap:12px;font:13px var(--mono);color:var(--ink-3)}
+.reset{font:13px var(--body);background:none;border:0;color:var(--focus);cursor:pointer;padding:4px}
+.reset[hidden]{display:none}
+
+/* ledger */
+.ledger{margin-top:12px;background:var(--sheet);border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+.lanes-head{display:flex;border-bottom:1px solid var(--rule);background:var(--band)}
+.lanes-head .g{height:92px}
+.lanes-head .g span{position:absolute;bottom:8px;font:500 10.5px/1 var(--mono);color:var(--ink-3);writing-mode:vertical-rl;transform:translateX(-50%) rotate(180deg);white-space:nowrap}
+.lanes-head .txt{flex:1;align-self:flex-end;padding:10px 14px 10px 4px;font:12px var(--body);color:var(--ink-3)}
 .g{position:relative;width:100px;flex:none}
-.tx{flex:1;min-width:0;padding:6px 0 8px}
-.t1{font-size:14px;font-weight:500;line-height:1.35}
-.t2{font-size:12px;color:var(--text-secondary)}
-.det{font-size:13px;color:var(--text-secondary);line-height:1.5;margin-top:4px;display:none}
-.row.open .det{display:block}
-.bk{font-size:11px;color:var(--text-danger);background:var(--bg-danger);padding:1px 6px;border-radius:var(--radius);margin-left:4px}
-.small{font-size:12px;color:var(--text-secondary);margin:4px 0}
+.rail{position:absolute;top:0;bottom:0;width:2px;background:var(--rail)}
+.era{display:flex;background:var(--band);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.era .txt{flex:1;min-width:0;padding:10px 14px 10px 4px;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.era h3{margin:0;font:600 16px/1.3 var(--display)}
+.era .yrs{font:12px var(--mono);color:var(--ink-3)}
+.row{display:flex;border-top:1px solid var(--rule);transition:opacity .15s}
+.era + .row{border-top:0}
+.row.dim{opacity:.18}
+.row.flash{animation:flash 1.4s ease-out}
+@keyframes flash{from{background:color-mix(in srgb,var(--focus) 18%,transparent)}to{background:transparent}}
+@media (prefers-reduced-motion: reduce){.row,.row.flash{transition:none;animation:none}}
+.row-btn{all:unset;flex:1;min-width:0;display:block;cursor:pointer;padding:10px 14px 12px 4px}
+.row-top{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 10px}
+.date{font:500 12.5px var(--mono);color:var(--ink-3);font-variant-numeric:tabular-nums;white-space:nowrap}
+.title{font:600 16px/1.35 var(--body);color:var(--ink)}
+.meta{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:3px;font-size:13px;color:var(--ink-2)}
+.meta .camp{display:inline-flex;align-items:center;gap:5px}
+.meta .camp i{width:8px;height:8px;border-radius:50%;display:inline-block}
+.tag{font:500 11px/1 var(--mono);letter-spacing:.04em;text-transform:uppercase;padding:4px 6px;border-radius:3px;border:1px solid currentColor;white-space:nowrap}
+.tag.adopted{color:var(--ink-3)}
+.tag.rollback{color:var(--c-left)}
+.tag.rejected,.tag.struck{color:var(--ink)}
+.det{display:none;margin-top:8px;padding-top:8px;border-top:1px dashed var(--rule);font-size:14.5px;color:var(--ink-2)}
+.row.open .det{display:grid;gap:6px}
+.det .ref{font:12.5px var(--mono);color:var(--ink-3)}
+.det .vote{font:13px var(--mono);color:var(--ink)}
+.det .lnk{font-size:13.5px}
+.det .lnk a{color:var(--focus);cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.mark{position:absolute;top:12px}
+
+.notes{margin-top:44px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:28px 40px}
+.notes section{display:grid;gap:10px;min-width:0}
+.notes p{font-size:15.5px}
+.foot{margin-top:40px;font-size:13px;color:var(--ink-3)}
+@media (max-width:560px){
+  .ctl-label{width:100%}
+  .title{font-size:15px}
+}
 </style>
 </head>
 <body>
-<main>
-<h1>The evolution of rights in France, 1789–2024</h1>
-<p>A family tree of French laws and rights. Each branch is a family of rights, each dot is a law, and the dot's colour shows which political camp passed it. Hollow dashed dots are "extinctions", where rights went backwards.</p>
-<p class="small">Tap a colour to highlight a camp, tap a row for details.</p>
-<div id="legend"></div>
-<p class="small">Branches left to right: democracy · freedoms and equality · work and social · women and family · body and justice</p>
-<div id="tree" style="margin-top:12px"></div>
+<div class="wrap">
+<header>
+  <span class="eyebrow">France · 1789 → 2024</span>
+  <h1>The rights tree <em>— what passed, what failed, what was undone</em></h1>
+  <p class="lede">Every branch is a family of rights. Every mark is a dated legal text: a law, a decree, a constitutional change, a referendum or a court ruling. The colour shows the political camp behind the text. The shape and fill show what happened to it.</p>
+  <div class="tally" id="tally"></div>
+</header>
 
-<h2>What the tree shows</h2>
-<p>The left drives most work and social rights, especially in 1936, 1981–82 and 2000. The right and centre are behind several big personal-freedom laws, such as contraception in 1967 and abortion in 1975. Women's rights are spread across almost every camp. All the steps back came from non-democratic regimes: Napoleon, the restored monarchy and Vichy.</p>
-<h2>A note on the colours</h2>
-<p>Labelling camps is a simplification. Ferry's "moderate republicans" counted as the left in the 1880s but would look centrist today. Some laws also passed with votes from across parliament: the Veil abortion law relied mostly on left-wing votes, and the 2024 constitutional change got a huge cross-party majority.</p>
-</main>
+<div class="map" aria-label="Overview of all texts by branch and year">
+  <div class="map-head"><h2 style="font-size:17px">Overview</h2><span class="eyebrow">Tap a mark to jump to it</span></div>
+  <div class="map-scroll"><svg id="map" viewBox="0 0 1000 224" role="img" aria-label="Timeline of legal texts in five lanes from 1789 to 2026"></svg></div>
+</div>
+
+<div class="controls">
+  <div class="ctl-row"><span class="ctl-label">Outcome</span><div class="ctl-row" id="f-out"></div></div>
+  <div class="ctl-row"><span class="ctl-label">Camp</span><div class="ctl-row" id="f-camp"></div></div>
+  <div class="ctl-row"><span class="ctl-label">Text type</span><div class="ctl-row" id="f-kind"></div></div>
+  <div class="ctl-row"><span class="ctl-label">Search</span><input class="search" id="q" type="search" placeholder="Try “divorce”, “Veil”, “1936” or “referendum”" aria-label="Search texts"></div>
+  <div class="status"><span id="count"></span><button class="reset" id="reset" type="button" hidden>Clear filters</button></div>
+</div>
+
+<div class="ledger" id="ledger"></div>
+
+<div class="notes">
+  <section>
+    <h2>What the tree shows</h2>
+    <p>The left drives most work and social rights, with peaks in 1936, 1981–82 and 1998–2000. The right and centre carry several major personal freedoms: contraception in 1967, abortion in 1975 and the 1974 opening of the Constitutional Council to opposition MPs.</p>
+    <p>Most steps back come from regimes without free elections: Napoleon, the restored monarchy and Vichy. Elected majorities undid rights too, such as the 1850 voter purge, the 1920 ban on contraception, the 1960 Mirguet amendment and the pension-age rises of 2010 and 2023.</p>
+  </section>
+  <section>
+    <h2>Rejections matter</h2>
+    <p>Many rights arrived only after being refused first. The Senate blocked votes for women from 1922 until the 1944 ordinance. Parliament rejected abolishing the death penalty in 1791 and again in 1908, before passing it in 1981.</p>
+    <p>Since 1971 the Constitutional Council also strikes laws down. It did so in 1971 to protect freedom of association, and in 2020 and 2024 on online speech and immigration.</p>
+  </section>
+  <section>
+    <h2>Reading the colours</h2>
+    <p>Camp labels simplify. Ferry's moderate republicans counted as the left in the 1880s but look centrist today, and the Radicals moved from left to centre over the Third Republic. Some laws passed with votes from across parliament. The Veil law relied mostly on left-wing votes, and the 2024 constitutional change passed 780 to 72.</p>
+  </section>
+</div>
+<p class="foot">Dates are the date of promulgation for laws, of the vote for referendums and rejected bills, and of the decision for court rulings. Votes are given where a single decisive vote exists.</p>
+</div>
+
+<div class="tip" id="tip" hidden></div>
+
 <script>
-const S={rev:["Revolution","#7F77DD"],mon:["Monarchy or empire","#888780"],left:["Left","#E24B4A"],cen:["Centre / centre-right","#EF9F27"],right:["Gaullist / right","#378ADD"],uni:["National unity","#639922"],vic:["Vichy regime","#993C1D"]};
-const L=["Democracy","Freedoms and equality","Work and social","Women and family","Body and justice"];
-const E=[
-[1789,0,"rev","Declaration of the Rights of Man","The root: all men are born free and equal in rights. Adopted by the National Constituent Assembly."],
-[1791,1,"rev","Jews become full citizens","France is the first European country to grant Jews full equal citizenship."],
-[1791,4,"rev","Homosexuality no longer a crime","The new penal code simply drops the old offence of sodomy."],
-[1792,0,"rev","First vote for all men","The National Convention is elected by (near) universal male suffrage."],
-[1792,3,"rev","Divorce becomes legal","One of the most liberal divorce laws in Europe at the time."],
-[1794,1,"rev","Slavery abolished","The Convention abolishes slavery in all French colonies."],
-[1802,1,"mon","Napoleon restores slavery","Slavery is reinstated in the colonies under the Consulate.",1],
-[1804,3,"mon","Civil Code: wife must obey","Napoleon's Civil Code makes married women legally subordinate to their husbands.",1],
-[1814,0,"mon","Only rich men can vote","The restored monarchy limits voting to wealthy taxpayers.",1],
-[1816,3,"mon","Divorce banned again","Ultra-royalist majority abolishes divorce for nearly 70 years.",1],
-[1841,2,"mon","Child labour limited","Under the July Monarchy, factory work is banned for children under 8."],
-[1848,0,"left","Universal male suffrage for good","The Second Republic's provisional government restores the vote for all men."],
-[1848,1,"left","Slavery abolished for good","Decree pushed by Victor Schoelcher under the Second Republic."],
-[1864,2,"mon","Right to strike","Napoleon III's empire legalises strikes (Ollivier law)."],
-[1881,1,"cen","Freedom of the press","Moderate republicans pass the great press-freedom law, still in force."],
-[1882,2,"cen","Free, secular, compulsory school","Jules Ferry's laws make primary school free and mandatory for girls and boys."],
-[1884,2,"cen","Trade unions legal","Waldeck-Rousseau law lets workers form unions."],
-[1884,3,"cen","Divorce restored","Naquet law, pushed by a radical deputy and passed by the republican majority."],
-[1901,1,"cen","Freedom of association","Anyone can create an association (Waldeck-Rousseau government)."],
-[1905,1,"left","Church and state separated","Laïcité law passed by the left-wing Bloc des gauches."],
-[1906,2,"left","Weekly day off","Radical government guarantees one rest day a week."],
-[1936,2,"left","Paid holidays and 40-hour week","Popular Front: two weeks paid leave and collective agreements."],
-[1938,3,"left","Married women gain legal capacity","Wives no longer legally 'incapable' (radical-led government)."],
-[1940,0,"vic","Republic abolished","Pétain's Vichy regime ends democracy.",1],
-[1940,1,"vic","Anti-Jewish statutes","Vichy excludes Jews from jobs and rights.",1],
-[1942,4,"vic","Anti-gay age-of-consent law","Vichy sets a higher age of consent for same-sex relations.",1],
-[1944,0,"uni","Women win the vote","De Gaulle's provisional government grants women the right to vote."],
-[1945,2,"uni","Social security","Health, pension and family cover for all, from the Resistance programme."],
-[1946,3,"uni","Equal rights in the Constitution","New preamble guarantees women equal rights in all areas."],
-[1950,2,"cen","Minimum wage (SMIG)","Created under a centrist-led Fourth Republic government."],
-[1965,3,"right","Wives can work and bank alone","Married women no longer need a husband's permission (Gaullist government)."],
-[1967,4,"right","Contraception legal","Neuwirth law, proposed by a Gaullist deputy."],
-[1970,3,"right","Parental authority shared","Joint parental authority replaces 'paternal power' (Pompidou era)."],
-[1972,1,"right","Anti-racism law","Pleven law makes racist speech and discrimination a crime; voted unanimously."],
-[1974,0,"cen","Voting at 18","Giscard d'Estaing lowers the voting age from 21."],
-[1975,3,"cen","Divorce by mutual consent","Reform under Giscard d'Estaing."],
-[1975,4,"cen","Abortion legal","Veil law, passed under Giscard with mostly left-wing votes in parliament."],
-[1981,4,"left","Death penalty abolished","Badinter law under Mitterrand."],
-[1982,2,"left","39-hour week, 5th week of holiday","First Mitterrand government."],
-[1982,4,"left","Equal age of consent","Vichy-era anti-gay discrimination removed."],
-[1983,3,"left","Workplace equality law","Roudy law on equal treatment of women at work."],
-[1988,2,"left","Minimum income (RMI)","Rocard government creates a basic income for the poorest."],
-[1999,3,"left","PACS civil union","Open to same-sex couples (Jospin government)."],
-[2000,0,"left","Parity law","Parties must present equal numbers of women and men (Jospin government)."],
-[2000,2,"left","35-hour week","Aubry laws under the Jospin government."],
-[2005,4,"right","End-of-life rights","Leonetti law bans unreasonable treatment obstinacy."],
-[2007,4,"right","Death penalty banned in Constitution","Constitutional amendment under Chirac."],
-[2013,3,"left","Marriage for all","Same-sex marriage under Hollande."],
-[2021,3,"cen","IVF for all women","Opened to lesbian couples and single women under Macron."],
-[2024,4,"cen","Abortion in the Constitution","Under Macron, approved by a large cross-party majority of parliament."]
+const CAMPS={rev:"Revolution",mon:"Monarchy or empire",left:"Left",cen:"Centre / centre-right",right:"Right / Gaullist",uni:"National unity",vic:"Vichy regime"};
+const BR=["Democracy","Freedoms & equality","Work & social","Women & family","Body & justice"];
+const BR_SHORT=["Democracy","Freedoms","Work","Women","Body"];
+const KINDS={law:"Law",decree:"Decree or ordinance",const:"Constitution or revision",amend:"Amendment",ref:"Referendum",bill:"Bill",court:"Court ruling"};
+const KIND_GROUP={law:"text",decree:"text",bill:"text",amend:"text",const:"const",ref:"const",court:"court"};
+const GROUPS={text:"Law, decree or bill",const:"Constitution or referendum",court:"Court ruling"};
+const OUT={adopted:"Adopted",rollback:"Step back",rejected:"Rejected or withdrawn",struck:"Struck down"};
+const ERAS=[
+ [1789,1792,"Revolution: constitutional monarchy"],[1792,1804,"First Republic and Consulate"],[1804,1814,"First Empire"],
+ [1814,1830,"Restoration"],[1830,1848,"July Monarchy"],[1848,1852,"Second Republic"],[1852,1870,"Second Empire"],
+ [1870,1940,"Third Republic"],[1940,1944,"Vichy regime"],[1944,1946,"Provisional government"],[1946,1958,"Fourth Republic"],[1958,2027,"Fifth Republic"]];
+
+/* id, date, branch, camp, kind, outcome, title, reference, detail, vote, relates-to id */
+const RAW=[
+["ddhc","1789-08-26",0,"rev","const","adopted","Declaration of the Rights of Man and of the Citizen","Adopted by the National Constituent Assembly","The root of the tree: men are born and remain free and equal in rights. Still part of French constitutional law today."],
+["death91","1791-06-01",4,"rev","bill","rejected","Abolition of the death penalty rejected","Le Peletier de Saint-Fargeau's proposal","The Constituent Assembly debates abolition and keeps the death penalty, with a single method of execution for all."],
+["chapelier","1791-06-14",2,"rev","law","rollback","Le Chapelier law bans unions and strikes","Loi Le Chapelier","Workers' associations and collective action are forbidden in the name of free labour. The ban lasts until 1864 for strikes and 1884 for unions."],
+["code91","1791-09-25",4,"rev","law","adopted","Homosexuality no longer a crime","Penal Code of 25 September – 6 October 1791","The new penal code simply leaves out the old offence of sodomy, a first in Europe."],
+["jews","1791-09-27",1,"rev","law","adopted","Jews become full citizens","Decree of the Constituent Assembly","France is the first European country to grant Jews full equal citizenship."],
+["suff92","1792-08-11",0,"rev","decree","adopted","First vote for all men","Decree of 11 August 1792","The distinction between 'active' and 'passive' citizens is dropped. The National Convention is elected by near-universal male suffrage, in two stages."],
+["div92","1792-09-20",3,"rev","law","adopted","Divorce becomes legal","Law of 20 September 1792","Divorce by mutual consent or for incompatibility, open equally to wives and husbands. One of the most liberal divorce laws in Europe at the time."],
+["slav94","1794-02-04",1,"rev","decree","adopted","Slavery abolished","Decree of 16 Pluviôse Year II","The Convention abolishes slavery in all French colonies and makes all men living there citizens."],
+["c95","1795-08-22",0,"rev","const","rollback","Voting tied to tax again","Constitution of Year III","After Thermidor, the Directory's constitution brings back a tax qualification to vote."],
+["slav02","1802-05-20",1,"mon","law","rollback","Slavery maintained and restored","Law of 30 Floréal Year X","Under the Consulate, Bonaparte keeps slavery where it had not been abolished in practice and restores it in Guadeloupe and Guiana.","","slav94"],
+["code04","1804-03-21",3,"mon","law","rollback","Civil Code: wives must obey","Code civil des Français","Married women become legally subordinate to their husbands, who control property and residence. Divorce is narrowed.","","div92"],
+["charte14","1814-06-04",0,"mon","const","rollback","Only rich men can vote","Charter of 1814","The restored monarchy limits the vote to men paying at least 300 francs in direct tax, fewer than 100,000 voters.","","suff92"],
+["div16","1816-05-08",3,"mon","law","rollback","Divorce banned again","Loi Bonald","The ultra-royalist majority abolishes divorce for 68 years.","","div92"],
+["press35","1835-09-09",1,"mon","law","rollback","September laws curb the press","Lois de septembre","After the Fieschi assassination attempt on Louis-Philippe, attacks on the king and the regime become press offences, and censorship of drawings returns."],
+["child41","1841-03-22",2,"mon","law","adopted","Child labour limited","Law of 22 March 1841","Factory work is banned for children under 8, and limited to 8 hours a day for those aged 8 to 12."],
+["suff48","1848-03-05",0,"left","decree","adopted","Universal male suffrage","Decree of the Provisional Government","The vote goes to all men over 21. The electorate grows from about 250,000 to over 9 million overnight.","","charte14"],
+["work48","1848-03-02",2,"left","decree","adopted","Ten-hour working day","Decree of 2 March 1848","Working hours are capped at 10 a day in Paris and 11 in the provinces."],
+["slav48","1848-04-27",1,"left","decree","adopted","Slavery abolished for good","Decree of 27 April 1848","Pushed by Victor Schoelcher. About 250,000 enslaved people are freed in the colonies.","","slav02"],
+["work48b","1848-09-09",2,"cen","law","rollback","Working day back to twelve hours","Law of 9 September 1848","After the June Days uprising, the conservative-leaning Assembly raises the cap back to 12 hours.","","work48"],
+["suff50","1850-05-31",0,"right","law","rollback","Three million voters purged","Law of 31 May 1850","The Party of Order requires three years' residence to vote, removing about a third of the electorate, mostly workers.","","suff48"],
+["coup51","1851-12-02",0,"mon","decree","rollback","Coup d'état ends the Republic","Coup of Louis-Napoléon Bonaparte","The president dissolves the Assembly. Male suffrage is restored but used only for plebiscites and controlled elections."],
+["strike64","1864-05-25",2,"mon","law","adopted","Right to strike","Loi Ollivier","Napoleon III's empire ends the offence of 'coalition'. Strikes become legal if peaceful.","","chapelier"],
+["wallon","1875-01-30",0,"cen","amend","adopted","The Republic wins by one vote","Wallon amendment","An amendment naming the 'President of the Republic' as head of state passes by a single vote. It quietly founds the Third Republic.","353 for · 352 against"],
+["press81","1881-07-29",1,"cen","law","adopted","Freedom of the press","Law of 29 July 1881","Moderate republicans end prior authorisation and censorship. Still in force today."],
+["school82","1882-03-28",2,"cen","law","adopted","Free, secular, compulsory school","Lois Jules Ferry (1881–1882)","Primary school becomes free (1881), then compulsory and secular for girls and boys aged 6 to 13 (1882)."],
+["union84","1884-03-21",2,"cen","law","adopted","Trade unions legal","Loi Waldeck-Rousseau","Workers and employers may form unions freely.","","chapelier"],
+["div84","1884-07-27",3,"cen","law","adopted","Divorce restored","Loi Naquet","Divorce returns, but only for fault. Mutual consent waits until 1975.","","div16"],
+["rev84","1884-08-14",0,"cen","const","adopted","Republic made permanent","Constitutional revision of 1884","The republican form of government can no longer be the subject of a constitutional revision."],
+["acc98","1898-04-09",2,"cen","law","adopted","Compensation for workplace accidents","Law of 9 April 1898","Employers become liable for work accidents without the worker having to prove fault."],
+["assoc01","1901-07-01",1,"cen","law","adopted","Freedom of association","Law of 1 July 1901","Anyone can create an association with a simple declaration."],
+["sep05","1905-12-09",1,"left","law","adopted","Church and state separated","Law of 9 December 1905","Laïcité law passed by the left-wing Bloc des gauches. The state guarantees freedom of worship and funds no religion."],
+["rest06","1906-07-13",2,"left","law","adopted","Weekly day off","Law of 13 July 1906","The Radical government guarantees one rest day a week, by default Sunday."],
+["wage07","1907-07-13",3,"left","law","adopted","Wives keep their own wages","Loi Schmahl","Married women gain the right to freely dispose of the money they earn."],
+["death08","1908-12-08",4,"left","bill","rejected","Abolition rejected again","Briand bill","The Chamber of Deputies rejects the government's abolition bill after a high-profile murder case swings opinion.","201 for · 330 against","death91"],
+["pens10","1910-04-05",2,"left","law","adopted","First workers' pensions","Law on workers' and peasants' pensions","A first compulsory pension scheme, starting at 65."],
+["eight19","1919-04-23",2,"cen","law","adopted","Eight-hour working day","Law of 23 April 1919","Clemenceau's government caps work at 8 hours a day and 48 a week."],
+["contra20","1920-07-31",3,"right","law","rollback","Contraception and abortion advocacy banned","Law of 31 July 1920","The Bloc national majority bans promoting contraception or abortion, as part of a push to raise the birth rate."],
+["fem22","1922-11-21",0,"right","bill","rejected","Senate blocks votes for women","Women's suffrage bill","The Chamber voted women's suffrage in May 1919. The Radical-dominated Senate refuses to debate it. The Senate blocks it again and again until 1940.","Senate: 134 for debate · 156 against"],
+["leave36","1936-06-20",2,"left","law","adopted","Paid holidays and 40-hour week","Laws of 20 and 21 June 1936","The Popular Front brings two weeks of paid leave, the 40-hour week and collective agreements."],
+["cap38","1938-02-18",3,"left","law","adopted","Married women gain legal capacity","Law of 18 February 1938","Wives are no longer legally 'incapable', though husbands keep the final say on residence and their veto on a wife's job.","","code04"],
+["pet40","1940-07-10",0,"vic","law","rollback","Full powers to Pétain","Constitutional law of 10 July 1940","Parliament hands full powers to Marshal Pétain, ending the Third Republic.","569 for · 80 against · 20 abstentions"],
+["jews40","1940-10-03",1,"vic","law","rollback","Anti-Jewish statute","Statut des Juifs","Jews are excluded from the civil service, teaching, the press and many professions.","","jews"],
+["union40","1940-11-09",2,"vic","decree","rollback","National union federations dissolved","Decree of 9 November 1940","Vichy dissolves the CGT and the employers' federations. The 1941 Labour Charter bans strikes.","","union84"],
+["abort42","1942-02-15",4,"vic","law","rollback","Abortion made a crime against the state","Law of 15 February 1942","Abortion can be tried by a special court. Marie-Louise Giraud is guillotined for it in 1943."],
+["gay42","1942-08-06",4,"vic","law","rollback","Anti-gay age-of-consent law","Law of 6 August 1942","Sets the age of consent at 21 for same-sex relations against 13 for others. It survives the Liberation in 1945.","","code91"],
+["fem44","1944-04-21",0,"uni","decree","adopted","Women win the vote","Ordinance of 21 April 1944","De Gaulle's provisional government gives women the right to vote and stand for election. They first vote in April 1945.","","fem22"],
+["ss45","1945-10-04",2,"uni","decree","adopted","Social security","Ordinances of 4 and 19 October 1945","Health, pension and family cover for all employees, from the Resistance programme."],
+["ref46a","1946-05-05",0,"left","ref","rejected","First draft constitution rejected","Referendum of 5 May 1946","Voters reject a draft backed by the Communists and Socialists, with a single all-powerful assembly.","52.8% no"],
+["c46","1946-10-13",0,"uni","ref","adopted","Fourth Republic approved","Referendum of 13 October 1946","A second draft is approved by a narrow majority, with high abstention.","53.2% yes"],
+["pre46","1946-10-27",3,"uni","const","adopted","Equal rights written into the Constitution","Preamble of the 1946 Constitution","'The law guarantees women equal rights to those of men in all areas.' Also adds the right to strike and to join a union."],
+["smig50","1950-02-11",2,"cen","law","adopted","Minimum wage (SMIG)","Law of 11 February 1950","Created under a centre-led Fourth Republic government."],
+["leave56","1956-03-27",2,"left","law","adopted","Third week of paid holiday","Law of 27 March 1956","Guy Mollet's Republican Front government."],
+["c58","1958-09-28",0,"right","ref","adopted","Fifth Republic approved","Referendum of 28 September 1958","De Gaulle's constitution creates a strong executive and a Constitutional Council.","82.6% yes"],
+["mirguet","1960-07-30",4,"right","amend","rollback","Homosexuality labelled a 'social scourge'","Mirguet amendment","A Gaullist deputy's amendment lists homosexuality alongside alcoholism and prostitution as a social scourge. An ordinance that November doubles penalties for same-sex public indecency. Repealed in 1980."],
+["ref62","1962-10-28",0,"right","ref","adopted","President elected by the people","Referendum of 28 October 1962","Direct election of the president by universal suffrage.","62.25% yes"],
+["wives65","1965-07-13",3,"right","law","adopted","Wives can work and bank alone","Law of 13 July 1965","Married women no longer need a husband's permission to take a job or open a bank account.","","code04"],
+["neu67","1967-12-28",4,"right","law","adopted","Contraception legal","Loi Neuwirth","Proposed by a Gaullist deputy. Lifts the 1920 ban on contraception itself.","","contra20"],
+["union68","1968-12-27",2,"right","law","adopted","Unions inside companies","Law of 27 December 1968","Following the Grenelle agreements of May 1968, unions may set up branches in every company."],
+["ref69","1969-04-27",0,"right","ref","rejected","De Gaulle's reform rejected","Referendum of 27 April 1969","Voters reject reform of the Senate and regions. De Gaulle resigns the next day.","52.4% no"],
+["par70","1970-06-04",3,"right","law","adopted","Parental authority shared","Law of 4 June 1970","Joint parental authority replaces 'paternal power'."],
+["cc71","1971-07-16",1,"right","court","struck","Constitutional Council protects association","Decision 71-44 DC","The Council strikes down a government bill letting the authorities hold up the creation of associations. For the first time it reviews a law against the 1789 Declaration and the 1946 Preamble.","","assoc01"],
+["fil72","1972-01-03",3,"right","law","adopted","Equal rights for children born outside marriage","Law of 3 January 1972","Children born outside marriage get the same inheritance rights as others."],
+["pleven","1972-07-01",1,"right","law","adopted","Anti-racism law","Loi Pleven","Makes racist speech and discrimination offences. Voted unanimously."],
+["pay72","1972-12-22",3,"right","law","adopted","Equal pay for women and men","Law of 22 December 1972","Equal pay for work of equal value becomes law."],
+["vote18","1974-07-05",0,"cen","law","adopted","Voting at 18","Law of 5 July 1974","Giscard d'Estaing lowers the voting age from 21."],
+["cc74","1974-10-29",0,"cen","const","adopted","Opposition can refer laws to the Council","Constitutional revision of 29 October 1974","Sixty deputies or senators can now refer a law to the Constitutional Council, giving the opposition a real check."],
+["veil75","1975-01-17",4,"cen","law","adopted","Abortion legal","Loi Veil","Passed for a five-year trial under Giscard, mostly with left-wing votes. Made permanent in 1979.","Assembly: 284 for · 189 against","abort42"],
+["div75","1975-07-11",3,"cen","law","adopted","Divorce by mutual consent","Law of 11 July 1975","Divorce no longer requires proving a fault.","","div84"],
+["death81","1981-10-09",4,"left","law","adopted","Death penalty abolished","Loi Badinter","Robert Badinter's law under Mitterrand.","Assembly: 363 for · 117 against","death08"],
+["leave82","1982-01-16",2,"left","decree","adopted","39-hour week and fifth week of holiday","Ordinance of 16 January 1982","First Mitterrand government."],
+["pens82","1982-03-26",2,"left","decree","adopted","Retirement at 60","Ordinance of 26 March 1982","Full pension at 60 after 37.5 years of contributions."],
+["gay82","1982-08-04",4,"left","law","adopted","Equal age of consent","Law of 4 August 1982","The Vichy-era discrimination is removed, championed by Gisèle Halimi and Robert Badinter.","","gay42"],
+["ivg82","1982-12-31",4,"left","law","adopted","Abortion reimbursed","Loi Roudy","Social security covers the cost of abortion."],
+["roudy83","1983-07-13",3,"left","law","adopted","Workplace equality law","Loi Roudy","Bans discrimination against women at work and requires equality reports."],
+["savary","1984-07-12",1,"left","bill","rejected","Savary schools bill withdrawn","Savary bill on private schools","After a vast march in Paris on 24 June to defend Catholic schools, Mitterrand withdraws the bill. Pierre Mauroy's government resigns days later."],
+["gayssot","1990-07-13",1,"left","law","adopted","Holocaust denial becomes an offence","Loi Gayssot","Strengthens the anti-racism law and makes denying crimes against humanity an offence."],
+["rmi88","1988-12-01",2,"left","law","adopted","Minimum income (RMI)","Law of 1 December 1988","The Rocard government creates a basic income for the poorest. Voted almost unanimously."],
+["juppe95","1995-12-15",2,"right","bill","rejected","Juppé pension reform withdrawn","Juppé plan","After three weeks of strikes, the government drops its plan to change special pension schemes."],
+["parity99","1999-07-08",0,"left","const","adopted","Parity written into the Constitution","Constitutional revision of 8 July 1999","The law 'favours equal access of women and men' to elected office. The parity law follows in June 2000."],
+["cmu99","1999-07-27",2,"left","law","adopted","Universal health cover (CMU)","Law of 27 July 1999","Free health cover for the poorest residents."],
+["pacs","1999-11-15",3,"left","law","adopted","PACS civil union","Law of 15 November 1999","Open to same-sex and different-sex couples (Jospin government)."],
+["h35","2000-01-19",2,"left","law","adopted","35-hour week","Loi Aubry II","The Jospin government sets the legal working week at 35 hours."],
+["taub01","2001-05-21",1,"left","law","adopted","Slavery declared a crime against humanity","Loi Taubira","France recognises the slave trade and slavery as crimes against humanity.","","slav48"],
+["ivg01","2001-07-04",4,"left","law","adopted","Abortion limit raised to 12 weeks","Loi Aubry-Guigou","Also lets minors have an abortion without parental consent."],
+["kouch02","2002-03-04",4,"left","law","adopted","Patients' rights","Loi Kouchner","Patients gain access to their own medical records and the right to refuse treatment."],
+["leo05","2005-04-22",4,"right","law","adopted","End-of-life rights","Loi Leonetti","Bans unreasonable obstinacy in treatment and allows pain relief that may shorten life."],
+["eu05","2005-05-29",0,"right","ref","rejected","European Constitution rejected","Referendum of 29 May 2005","Voters reject the treaty, which included the EU Charter of Fundamental Rights.","54.67% no"],
+["cpe06","2006-04-10",2,"right","bill","rejected","First-job contract (CPE) withdrawn","Law of 31 March 2006, article 8","The contract allowed firing young workers without reason for two years. After weeks of protests it is withdrawn ten days after promulgation."],
+["death07","2007-02-23",4,"right","const","adopted","Death penalty banned in the Constitution","Constitutional revision of 23 February 2007","'No one may be sentenced to death.' Adopted under Chirac.","Congress: 828 for · 26 against","death81"],
+["c08","2008-07-23",0,"right","const","adopted","Citizens can challenge laws in court","Constitutional revision of 23 July 2008","Creates the priority question of constitutionality (QPC), the Defender of Rights and a two-term limit for presidents. It passes with one vote to spare over the three-fifths needed.","Congress: 539 for · 357 against (538 needed)"],
+["rsa08","2008-12-01",2,"right","law","adopted","Active solidarity income (RSA)","Law of 1 December 2008","Replaces the RMI and tops up low wages.","","rmi88"],
+["pens10b","2010-11-09",2,"right","law","rollback","Retirement age raised to 62","Loi Woerth","The legal minimum retirement age goes from 60 to 62.","","pens82"],
+["mpt13","2013-05-17",3,"left","law","adopted","Marriage for all","Law of 17 May 2013","Same-sex couples can marry and adopt (Hollande government).","Assembly: 331 for · 225 against","pacs"],
+["claeys16","2016-02-02",4,"left","law","adopted","Right to deep sedation","Loi Claeys-Leonetti","Terminally ill patients can ask for continuous deep sedation until death. Advance directives become binding.","","leo05"],
+["avia20","2020-06-18",1,"cen","court","struck","Online hate law struck down","Decision 2020-801 DC","The Constitutional Council strikes down the core of the Avia law, which made platforms remove reported content within 24 hours, as a disproportionate limit on free speech."],
+["pma21","2021-08-02",3,"cen","law","adopted","IVF for all women","Bioethics law of 2 August 2021","Assisted reproduction opens to lesbian couples and single women under Macron."],
+["ivg22","2022-03-02",4,"cen","law","adopted","Abortion limit raised to 14 weeks","Loi Gaillot","Passed on a cross-party proposal.","","ivg01"],
+["pens23","2023-04-14",2,"cen","law","rollback","Retirement age raised to 64","Pension reform of 2023","Adopted without a final vote in the Assembly, under article 49.3, after months of protests.","","pens10b"],
+["imm24","2024-01-25",1,"cen","court","struck","Immigration law partly struck down","Decision 2023-863 DC","The Constitutional Council strikes down 35 articles, most as unrelated riders, including limits on welfare for foreign residents."],
+["ivg24","2024-03-08",4,"cen","const","adopted","Abortion in the Constitution","Constitutional law of 8 March 2024","France guarantees 'the freedom of women to have an abortion' in its Constitution, a world first.","Congress: 780 for · 72 against","veil75"]
 ];
-const X=l=>14+l*18,first={};E.forEach((e,i)=>{if(first[e[1]]===undefined)first[e[1]]=i});
-let hi=null;
-const lg=document.getElementById('legend');
-Object.entries(S).forEach(([k,[n,c]])=>{const b=document.createElement('button');b.className='chip';b.dataset.k=k;b.innerHTML=`<span style="width:10px;height:10px;border-radius:50%;background:${c}"></span>${n}`;b.onclick=()=>{hi=hi===k?null:k;draw()};lg.appendChild(b)});
-const tr=document.getElementById('tree');
-E.forEach((e,i)=>{const[y,l,s,t,d,bk]=e,c=S[s][1];const r=document.createElement('div');r.className='row';r.dataset.s=s;
-let g='';for(let k=0;k<5;k++){if(first[k]===undefined||first[k]>i)continue;const st=first[k]===i?20:0;g+=`<div style="position:absolute;left:${X(k)-1}px;top:${st}px;bottom:0;width:2px;background:var(--border-strong)"></div>`;if(first[k]===i&&k>0)g+=`<svg style="position:absolute;left:0;top:0" width="100" height="22"><path d="M${X(0)} 0 C${X(0)} 18 ${X(k)} 4 ${X(k)} 20" fill="none" stroke="var(--border-strong)" stroke-width="2"/></svg>`}
-g+=`<div style="position:absolute;left:${X(l)-7}px;top:13px;width:14px;height:14px;border-radius:50%;box-sizing:border-box;${bk?`background:var(--bg);border:2.5px dashed ${c}`:`background:${c}`}"></div>`;
-r.innerHTML=`<div class="g">${g}</div><div class="tx"><div class="t1">${y} · ${t}${bk?'<span class="bk">step back</span>':''}</div><div class="t2">${L[l]} · ${S[s][0]}</div><div class="det">${d}</div></div>`;
-r.onclick=()=>r.classList.toggle('open');tr.appendChild(r)});
-function draw(){document.querySelectorAll('.chip').forEach(b=>b.classList.toggle('on',b.dataset.k===hi));document.querySelectorAll('.row').forEach(r=>r.classList.toggle('dim',hi&&r.dataset.s!==hi))}
+const E=RAW.map(([id,date,br,camp,kind,out,title,ref,det,vote,re])=>({id,date,y:+date.slice(0,4),br,camp,kind,out,title,ref,det,vote:vote||"",re:re||""})).sort((a,b)=>a.date.localeCompare(b.date));
+const byId=Object.fromEntries(E.map(e=>[e.id,e]));
+const later={};E.forEach(e=>{if(e.re)(later[e.re]=later[e.re]||[]).push(e)});
+
+const col=c=>`var(--c-${c})`;
+function shape(e,cx,cy,r){
+  const g=KIND_GROUP[e.kind],c=col(e.camp),filled=e.out==="adopted";
+  const fill=filled?c:"var(--sheet)",dash=e.out==="rollback"?' stroke-dasharray="2.6 2"':"",sw=filled?0:2;
+  let s;
+  if(g==="const")s=`<path class="hit" d="M${cx} ${cy-r*1.25} L${cx+r*1.25} ${cy} L${cx} ${cy+r*1.25} L${cx-r*1.25} ${cy}Z" fill="${fill}" stroke="${c}" stroke-width="${sw}"${dash}/>`;
+  else if(g==="court")s=`<rect class="hit" x="${cx-r*.95}" y="${cy-r*.95}" width="${r*1.9}" height="${r*1.9}" rx="1.5" fill="${fill}" stroke="${c}" stroke-width="${sw}"${dash}/>`;
+  else s=`<circle class="hit" cx="${cx}" cy="${cy}" r="${r}" fill="${fill}" stroke="${c}" stroke-width="${sw}"${dash}/>`;
+  const k=r*.5;
+  if(e.out==="rejected")s+=`<path d="M${cx-k} ${cy-k}L${cx+k} ${cy+k}M${cx+k} ${cy-k}L${cx-k} ${cy+k}" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>`;
+  if(e.out==="struck")s+=`<path d="M${cx-k*1.1} ${cy+k*1.1}L${cx+k*1.1} ${cy-k*1.1}" stroke="${c}" stroke-width="2" stroke-linecap="round"/>`;
+  return s;
+}
+const icon=(e,sz=16)=>`<svg width="${sz}" height="${sz}" viewBox="0 0 20 20" aria-hidden="true">${shape(e,10,10,6.4)}</svg>`;
+
+/* state */
+const st={out:new Set(),camp:new Set(),grp:new Set(),q:""};
+const match=e=>(!st.out.size||st.out.has(e.out))&&(!st.camp.size||st.camp.has(e.camp))&&(!st.grp.size||st.grp.has(KIND_GROUP[e.kind]))&&
+  (!st.q||(e.title+" "+e.ref+" "+e.det+" "+e.date+" "+KINDS[e.kind]+" "+CAMPS[e.camp]+" "+BR[e.br]).toLowerCase().includes(st.q));
+
+/* tally */
+const n=o=>E.filter(e=>e.out===o).length;
+document.getElementById('tally').innerHTML=`<span><b>${E.length}</b> texts</span><span><b>${n("adopted")}</b> adopted</span><span><b>${n("rollback")}</b> steps back</span><span><b>${n("rejected")}</b> rejected or withdrawn</span><span><b>${n("struck")}</b> struck down by the court</span>`;
+
+/* filters */
+function chips(el,entries,set,iconFn){
+  const box=document.getElementById(el);
+  entries.forEach(([k,label])=>{const b=document.createElement('button');b.type='button';b.className='chip';b.setAttribute('aria-pressed','false');
+    b.innerHTML=iconFn(k)+label;b.onclick=()=>{set.has(k)?set.delete(k):set.add(k);b.setAttribute('aria-pressed',set.has(k));apply()};box.appendChild(b)});
+}
+const proto=(o,g,c)=>({out:o,kind:g==="const"?"const":g==="court"?"court":"law",camp:c});
+chips('f-out',Object.entries(OUT),st.out,k=>icon(proto(k,"text","mon"),16));
+chips('f-camp',Object.entries(CAMPS),st.camp,k=>`<svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="5" fill="${col(k)}"/></svg>`);
+chips('f-kind',Object.entries(GROUPS),st.grp,k=>icon(proto("adopted",k,"mon"),16));
+const q=document.getElementById('q');q.oninput=()=>{st.q=q.value.trim().toLowerCase();apply()};
+document.getElementById('reset').onclick=()=>{st.out.clear();st.camp.clear();st.grp.clear();st.q="";q.value="";document.querySelectorAll('.chip').forEach(b=>b.setAttribute('aria-pressed','false'));apply()};
+
+/* overview map */
+const svg=document.getElementById('map');
+const X0=150,X1=986,Y0=34,LH=34,yr=y=>X0+(y-1789)/(2026-1789)*(X1-X0);
+let m='';
+ERAS.forEach(([a,b,name],i)=>{const x=yr(a),w=yr(Math.min(b,2026))-x;
+  m+=`<rect x="${x}" y="${Y0-12}" width="${w}" height="${LH*5+8}" fill="${i%2?'var(--band)':'transparent'}"/>`;
+  const lbl=name.replace('Revolution: constitutional monarchy','Revolution').replace(' and Consulate','');if(w>lbl.length*5.9+8)m+=`<text class="era-name" x="${x+4}" y="${Y0-16}">${lbl}</text>`});
+BR.forEach((b,i)=>{const y=Y0+i*LH+6;m+=`<line x1="${X0}" x2="${X1}" y1="${y}" y2="${y}" stroke="var(--rule)" stroke-width="1"/><text class="lane-name" x="12" y="${y+4}">${b}</text>`});
+[1800,1850,1900,1950,2000].forEach(t=>{m+=`<line x1="${yr(t)}" x2="${yr(t)}" y1="${Y0-8}" y2="${Y0+LH*5-6}" stroke="var(--rule)" stroke-dasharray="2 3"/><text x="${yr(t)}" y="${Y0+LH*5+10}" text-anchor="middle">${t}</text>`});
+E.forEach(e=>{const t=e.y+((+e.date.slice(5,7))-1)/12;m+=`<g class="mk" tabindex="0" data-id="${e.id}" role="button" aria-label="${e.date}: ${e.title.replace(/"/g,'&quot;')}">${shape(e,yr(t),Y0+e.br*LH+6,5)}</g>`});
+svg.innerHTML=m;
+const tip=document.getElementById('tip');
+svg.querySelectorAll('.mk').forEach(g=>{const e=byId[g.dataset.id];
+  const show=()=>{const r=g.getBoundingClientRect();tip.innerHTML=`<div class="d">${e.date} · ${OUT[e.out]}</div><div><b>${e.title}</b></div><div style="color:var(--ink-2)">${CAMPS[e.camp]} · ${KINDS[e.kind]}</div>`;tip.hidden=false;
+    const tw=tip.offsetWidth,th=tip.offsetHeight;let x=r.left+r.width/2-tw/2;x=Math.max(8,Math.min(innerWidth-tw-8,x));let y=r.top-th-8;if(y<8)y=r.bottom+8;tip.style.left=x+'px';tip.style.top=y+'px'};
+  g.addEventListener('mouseenter',show);g.addEventListener('focus',show);
+  g.addEventListener('mouseleave',()=>tip.hidden=true);g.addEventListener('blur',()=>tip.hidden=true);
+  const go=()=>{tip.hidden=true;jump(e.id)};g.addEventListener('click',go);g.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();go()}})});
+
+/* ledger with branch rails */
+const LX=k=>12+k*17;
+const first={};E.forEach((e,i)=>{if(first[e.br]===undefined)first[e.br]=i});
+const ledger=document.getElementById('ledger');
+const rails=(i,isEra)=>{let g='';for(let k=0;k<5;k++){const f=first[k];if(f===undefined||f>i||(isEra&&f===i))continue;
+  const top=!isEra&&f===i?20:0;g+=`<div class="rail" style="left:${LX(k)-1}px;top:${top}px"></div>`;
+  if(!isEra&&f===i&&k>0)g+=`<svg style="position:absolute;left:0;top:0" width="100" height="22" aria-hidden="true"><path d="M${LX(0)} 0 C${LX(0)} 18 ${LX(k)} 4 ${LX(k)} 20" fill="none" stroke="var(--rail)" stroke-width="2"/></svg>`}return g};
+let head=`<div class="lanes-head"><div class="g">${BR_SHORT.map((b,k)=>`<span style="left:${LX(k)}px">${b}</span>`).join('')}</div><div class="txt">Branches, left to right: ${BR.join(' · ')}</div></div>`;
+let html=head,era=-1;
+E.forEach((e,i)=>{
+  const ei=ERAS.findIndex(([a,b])=>e.y>=a&&e.y<b);
+  if(ei!==era){era=ei;const [a,b,name]=ERAS[ei];html+=`<div class="era"><div class="g">${rails(i,true)}</div><div class="txt"><h3>${name}</h3><span class="yrs">${a}–${b>2026?'today':b}</span></div></div>`}
+  const links=[];
+  if(e.re){const p=byId[e.re];links.push(`${e.out==="rollback"?"Undoes":p.out==="rollback"?"Reverses":"Builds on"}: <a data-go="${p.id}">${p.y} · ${p.title}</a>`)}
+  (later[e.id]||[]).forEach(l=>links.push(`${l.out==="rollback"?"Undone by":e.out==="rollback"?"Reversed by":"Followed by"}: <a data-go="${l.id}">${l.y} · ${l.title}</a>`));
+  html+=`<div class="row" id="r-${e.id}" data-id="${e.id}"><div class="g">${rails(i,false)}<svg class="mark" style="left:${LX(e.br)-10}px" width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">${shape(e,10,10,6.4)}</svg></div>
+  <button class="row-btn" type="button" aria-expanded="false"><div class="row-top"><span class="date">${e.date}</span><span class="title">${e.title}</span>${e.out!=="adopted"?`<span class="tag ${e.out}">${OUT[e.out]}</span>`:''}</div>
+  <div class="meta"><span class="camp"><i style="background:${col(e.camp)}"></i>${CAMPS[e.camp]}</span><span>${BR[e.br]}</span><span>${KINDS[e.kind]}</span></div>
+  <div class="det"><span class="ref">${e.ref}</span><span>${e.det}</span>${e.vote?`<span class="vote">${e.vote}</span>`:''}${links.length?`<span class="lnk">${links.join('<br>')}</span>`:''}</div></button></div>`;
+});
+ledger.innerHTML=html;
+ledger.addEventListener('click',ev=>{const a=ev.target.closest('a[data-go]');if(a){ev.stopPropagation();jump(a.dataset.go);return}
+  const b=ev.target.closest('.row-btn');if(b){const r=b.parentElement;r.classList.toggle('open');b.setAttribute('aria-expanded',r.classList.contains('open'))}});
+function jump(id){const r=document.getElementById('r-'+id);r.classList.add('open');r.querySelector('.row-btn').setAttribute('aria-expanded','true');
+  r.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'center'});r.classList.remove('flash');void r.offsetWidth;r.classList.add('flash')}
+
+function apply(){let c=0;E.forEach(e=>{const ok=match(e);if(ok)c++;document.getElementById('r-'+e.id).classList.toggle('dim',!ok);svg.querySelector(`[data-id="${e.id}"]`).classList.toggle('dim',!ok)});
+  const any=st.out.size||st.camp.size||st.grp.size||st.q;document.getElementById('count').textContent=any?`${c} of ${E.length} texts match`:`${E.length} texts, oldest first`;document.getElementById('reset').hidden=!any}
+apply();
 </script>
 </body>
 </html>
